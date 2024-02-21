@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Ultimate Member - Role Change Email
  * Description:     Extension to Ultimate Member for sending Role Change Email.
- * Version:         1.0.0
+ * Version:         1.1.0
  * Requires PHP:    7.4
  * Author:          Miss Veronica
  * License:         GPL v2 or later
@@ -10,7 +10,7 @@
  * Author URI:      https://github.com/MissVeronica
  * Text Domain:     ultimate-member
  * Domain Path:     /languages
- * UM version:      2.8.0
+ * UM version:      2.8.3
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit; 
@@ -23,7 +23,7 @@ Class UM_Role_Change_Email {
     function __construct() {
 
         add_filter( 'um_email_notifications',                 array( $this, 'custom_email_notification_role_change' ), 90, 1 );
-        add_action(	'um_extend_admin_menu',                   array( $this, 'copy_email_notification_role_change_email' ), 10 );
+        add_action( 'um_extend_admin_menu',                   array( $this, 'copy_email_notification_role_change_email' ), 10 );
         add_action( 'set_user_role',                          array( $this, 'custom_wp_role_change_email' ), 10, 3 );
         add_filter( 'um_set_user_role',                       array( $this, 'custom_um_role_change_email' ), 10, 3 );
         add_filter( 'um_admin_settings_email_section_fields', array( $this, 'settings_email_section_role_change_email' ), 9, 2 );
@@ -70,27 +70,26 @@ Class UM_Role_Change_Email {
 
     public function custom_email_notification_role_change( $um_emails ) {
 
-        $custom_email = array(
-              'role_change_email'	 => array(
-                    'key'			 => $this->email_key,
-                    'title'			 => __( 'Account Role is changed email', 'ultimate-member' ),
-                    'subject'		 => 'Role Change {site_name}',
-                    'body'			 => '',
-                    'description'	 => __( 'To send the user an email when the user role is changed', 'ultimate-member' ),
-                    'recipient'		 => 'user',
-                    'default_active' => true, 
-                ));
+        $um_emails['role_change_email'] = array(
+                                                'key'            => $this->email_key,
+                                                'title'          => __( 'Account Role is changed email', 'ultimate-member' ),
+                                                'subject'        => 'Role Change {site_name}',
+                                                'body'           => '',
+                                                'description'    => __( 'To send the user an email when the user role is changed', 'ultimate-member' ),
+                                                'recipient'      => 'user',
+                                                'default_active' => true, 
+                                            );
 
         if ( ! array_key_exists( $this->email_key . '_on', UM()->options()->options ) ) {
 
             UM()->options()->options = array_merge( array(
-                            $this->email_key . '_on'  => empty( $custom_email['default_active'] ) ? 0 : 1,
-                            $this->email_key . '_sub' => 'Role Change {site_name}', ), 
-                            UM()->options()->options, 
+                            $this->email_key . '_on'  =>  empty( $um_emails['role_change_email']['default_active'] ) ? 0 : 1,
+                            $this->email_key . '_sub' => 'Role Change {site_name}', ),
+                            UM()->options()->options,
                     );
         }
 
-        return array_merge( $um_emails, $custom_email );
+        return $um_emails;
     }
 
     public function send_role_change_email( $user_id, $role ) {
@@ -124,7 +123,7 @@ Class UM_Role_Change_Email {
                             'size'          => 'medium',
                             'options'       => UM()->roles()->get_roles(),
                             'label'         => __( 'Select User Roles for Notification emails', 'ultimate-member' ),
-                            'tooltip'       => __( 'Select single or multiple User Roles for Notification emails.', 'ultimate-member' ),
+                            'description'   => __( 'Select single or multiple User Roles for Notification emails.', 'ultimate-member' ),
                             'conditional'   => array( $email_key . '_on', '=', 1 ),
                         );
         }
@@ -135,3 +134,4 @@ Class UM_Role_Change_Email {
 }
 
 new UM_Role_Change_Email();
+
