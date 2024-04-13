@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Ultimate Member - Role Change Email
  * Description:     Extension to Ultimate Member for sending Role Change Email.
- * Version:         1.1.0
+ * Version:         1.2.0
  * Requires PHP:    7.4
  * Author:          Miss Veronica
  * License:         GPL v2 or later
@@ -10,7 +10,7 @@
  * Author URI:      https://github.com/MissVeronica
  * Text Domain:     ultimate-member
  * Domain Path:     /languages
- * UM version:      2.8.3
+ * UM version:      2.8.5
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit; 
@@ -80,14 +80,25 @@ Class UM_Role_Change_Email {
                                                 'default_active' => true, 
                                             );
 
-        if ( ! array_key_exists( $this->email_key . '_on', UM()->options()->options ) ) {
+        $email_option_on  = UM()->options()->get( $this->email_key . '_on' );
+
+        if ( '' === $email_option_on ) {
+            $email_on = empty( $um_emails['role_change_email']['default_active'] ) ? 0 : 1;
+            UM()->options()->update( $this->email_key . '_on', $email_on );
+            UM()->options()->update( $this->email_key . '_sub', 'Role Change {site_name}' );
+        }
+
+/*
+        if ( ! array_key_exists( $this->email_key . 'role_change_email_on', UM()->options()->options ) ) {
 
             UM()->options()->options = array_merge( array(
                             $this->email_key . '_on'  =>  empty( $um_emails['role_change_email']['default_active'] ) ? 0 : 1,
                             $this->email_key . '_sub' => 'Role Change {site_name}', ),
                             UM()->options()->options,
                     );
+
         }
+*/
 
         return $um_emails;
     }
@@ -134,4 +145,5 @@ Class UM_Role_Change_Email {
 }
 
 new UM_Role_Change_Email();
+
 
